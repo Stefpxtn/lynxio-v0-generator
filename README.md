@@ -1,1 +1,1 @@
-# lynxio-v0-generator1
+# lynxio-v0-generator
