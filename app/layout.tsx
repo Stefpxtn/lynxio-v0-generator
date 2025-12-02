@@ -1,9 +1,9 @@
-// app/layout.tsx
 import './globals.css';
+import type { Metadata } from 'next';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Lynxio V0 Generator',
-  description: 'Générateur de site Lynxio via v0',
+  description: 'Generate simple landing pages from Airtable prompts',
 };
 
 export default function RootLayout({
