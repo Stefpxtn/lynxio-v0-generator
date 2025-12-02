@@ -1,6 +1,6 @@
 // app/api/generate-site/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,18 +16,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // On génère un id unique
-    const id = uuidv4();
+    // ID unique natif Node (pas besoin de package uuid)
+    const id = randomUUID();
 
-    // On nettoie complètement la BASE_URL
+    // Base URL propre
     const rawBaseUrl =
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
     const baseUrl = rawBaseUrl
-      .trim() // enlève espaces / \n / \r au début et à la fin
-      .replace(/\/+$/, ""); // enlève les / à la fin
+      .trim() // enlève espaces / \n / \r
+      .replace(/\/+$/, ""); // enlève les / de fin
 
-    // On encode l'HTML dans la query (pour l'instant on reste sur cette solution)
+    // On encode l'HTML en query (solution actuelle)
     const encodedHtml = encodeURIComponent(html);
 
     // URL finale du site
