@@ -1,15 +1,12 @@
 // app/api/generate-site/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { randomUUID } from "crypto";
-
-function encodeHtml(html: string): string {
-  // HTML -> base64 -> safe dans l’URL
-  return encodeURIComponent(Buffer.from(html, "utf8").toString("base64"));
-}
+import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+
+    // On attend { html: "<!DOCTYPE html>..." }
     const html = body?.html;
 
     if (!html || typeof html !== "string") {
@@ -19,30 +16,37 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const id = randomUUID();
+    // On génère un id unique
+    const id = uuidv4();
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/+$/, "") ||
-      "https://lynxio-v0-generator.vercel.app";
+    // On nettoie complètement la BASE_URL
+    const rawBaseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-    const encodedHtml = encodeHtml(html);
+    const baseUrl = rawBaseUrl
+      .trim() // enlève espaces / \n / \r au début et à la fin
+      .replace(/\/+$/, ""); // enlève les / à la fin
 
-    // ⚠️ IMPORTANT : on met le HTML encodé dans l’URL
+    // On encode l'HTML dans la query (pour l'instant on reste sur cette solution)
+    const encodedHtml = encodeURIComponent(html);
+
+    // URL finale du site
     const siteUrl = `${baseUrl}/site/${id}?html=${encodedHtml}`;
 
-    return NextResponse.json(
-      {
-        id,
-        html,
-        siteUrl,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ id, html, siteUrl }, { status: 200 });
   } catch (error) {
-    console.error("Error in /api/generate-site", error);
+    console.error("Error in generate-site route:", error);
     return NextResponse.json(
-      { error: "Internal server error in generate-site." },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
+}
+
+export async function GET() {
+  // On force le POST pour n8n
+  return NextResponse.json(
+    { error: "Method not allowed. Use POST with JSON { html }." },
+    { status: 405 }
+  );
 }
