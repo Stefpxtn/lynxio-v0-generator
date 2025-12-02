@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
-import { v4 as uuid } from "uuid";
 
 /**
- * Route API pour générer un site via l'appel de n8n.
- * Reçoit un JSON contenant : { html, prompt }
+ * Route API pour générer un site.
+ * Reçoit : { html }
  * Retourne : { id, html, siteUrl }
  */
-
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
     const { html } = body;
 
     if (!html) {
@@ -20,11 +17,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔥 ID unique pour l'URL du site
-    const id = uuid();
+    // ✅ ID unique natif (pas besoin de package uuid)
+    const id = crypto.randomUUID();
 
-    // 🔥 Base URL venant de Vercel (à configurer dans Environment Variables)
-    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").trim();
+    // ✅ URL de base (configurée dans Vercel → Environment Variables)
+    let baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").trim();
 
     if (!baseUrl) {
       return NextResponse.json(
@@ -33,11 +30,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔥 URL finale propre (sans retour à la ligne)
+    // enlever un éventuel / à la fin
+    baseUrl = baseUrl.replace(/\/+$/, "");
+
+    // ✅ URL finale propre
     const siteUrl = `${baseUrl}/site/${id}`;
 
-    // 👉 On peut sauvegarder le HTML dans un KV, un DB, ou Supabase plus tard.
-    // Pour l'instant, on renvoie directement les données à n8n.
     return NextResponse.json({
       id,
       html,
