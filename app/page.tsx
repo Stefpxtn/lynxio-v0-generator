@@ -1,13 +1,18 @@
-// app/page.tsx
 export default function Home() {
   return (
-    <main style={{ padding: 40 }}>
+    <main
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: 16,
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      }}
+    >
       <h1>Lynxio V0 Generator</h1>
-      <p>Setup Next.js OK ✅</p>
-      <p>
-        Un site généré sera visible sur :{' '}
-        <code>/site/&lt;recordId Airtable&gt;</code>
-      </p>
+      <p>Next.js fonctionne ✅ – build de base OK.</p>
     </main>
   );
 }
