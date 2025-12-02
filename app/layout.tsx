@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata = {
   title: 'Lynxio V0 Generator',
-  description: 'Générateur de sites pour tes clients',
+  description: 'Générateur de site Lynxio via v0',
 };
 
 export default function RootLayout({
