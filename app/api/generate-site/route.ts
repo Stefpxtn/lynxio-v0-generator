@@ -1,50 +1,47 @@
-import { NextResponse } from "next/server";
+// app/api/generate-site/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 
-/**
- * Route API pour générer un site.
- * Reçoit : { html }
- * Retourne : { id, html, siteUrl }
- */
-export async function POST(req: Request) {
+function encodeHtml(html: string): string {
+  // HTML -> base64 -> safe dans l’URL
+  return encodeURIComponent(Buffer.from(html, "utf8").toString("base64"));
+}
+
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { html } = body;
+    const html = body?.html;
 
-    if (!html) {
+    if (!html || typeof html !== "string") {
       return NextResponse.json(
         { error: "Missing HTML content in request." },
         { status: 400 }
       );
     }
 
-    // ✅ ID unique natif (pas besoin du package "uuid")
-    const id = crypto.randomUUID();
+    const id = randomUUID();
 
-    // ✅ URL de base (configurée dans Vercel → Environment Variables)
-    let baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").trim();
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/+$/, "") ||
+      "https://lynxio-v0-generator.vercel.app";
 
-    if (!baseUrl) {
-      return NextResponse.json(
-        { error: "NEXT_PUBLIC_BASE_URL is not configured." },
-        { status: 500 }
-      );
-    }
+    const encodedHtml = encodeHtml(html);
 
-    // Supprime un / final éventuel
-    baseUrl = baseUrl.replace(/\/+$/, "");
+    // ⚠️ IMPORTANT : on met le HTML encodé dans l’URL
+    const siteUrl = `${baseUrl}/site/${id}?html=${encodedHtml}`;
 
-    // ✅ URL finale propre
-    const siteUrl = `${baseUrl}/site/${id}`;
-
-    return NextResponse.json({
-      id,
-      html,
-      siteUrl,
-    });
-  } catch (error) {
-    console.error("Error in /api/generate-site:", error);
     return NextResponse.json(
-      { error: "Internal server error." },
+      {
+        id,
+        html,
+        siteUrl,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error in /api/generate-site", error);
+    return NextResponse.json(
+      { error: "Internal server error in generate-site." },
       { status: 500 }
     );
   }
