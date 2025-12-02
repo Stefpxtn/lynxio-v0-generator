@@ -1,6 +1,11 @@
-// app/api/generate-site/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { randomUUID } from "crypto";
+
+// Simple générateur d'ID sans uuid
+function generateId(): string {
+  const timePart = Date.now().toString(36);
+  const randomPart = Math.random().toString(36).slice(2, 10);
+  return `${timePart}-${randomPart}`;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,24 +21,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ID unique natif Node (pas besoin de package uuid)
-    const id = randomUUID();
+    // ID unique (sans uuid)
+    const id = generateId();
 
     // Base URL propre
     const rawBaseUrl =
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-    const baseUrl = rawBaseUrl
-      .trim() // enlève espaces / \n / \r
-      .replace(/\/+$/, ""); // enlève les / de fin
+    const baseUrl = rawBaseUrl.trim().replace(/\/+$/, ""); // retire les / à la fin
 
-    // On encode l'HTML en query (solution actuelle)
+    // Encode le HTML dans l’URL
     const encodedHtml = encodeURIComponent(html);
 
-    // URL finale du site
+    // URL finale du site (pas de \n, pas d’espace)
     const siteUrl = `${baseUrl}/site/${id}?html=${encodedHtml}`;
 
-    return NextResponse.json({ id, html, siteUrl }, { status: 200 });
+    return NextResponse.json(
+      {
+        id,
+        html,
+        siteUrl,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error in generate-site route:", error);
     return NextResponse.json(
@@ -43,10 +53,12 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// Si quelqu'un fait un GET direct sur /api/generate-site
 export async function GET() {
-  // On force le POST pour n8n
   return NextResponse.json(
-    { error: "Method not allowed. Use POST with JSON { html }." },
+    {
+      error: "Method not allowed. Use POST with JSON body { html }.",
+    },
     { status: 405 }
   );
 }
