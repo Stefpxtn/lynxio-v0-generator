@@ -1,8 +1,13 @@
+// app/page.tsx
 export default function Home() {
   return (
-    <div style={{ padding: 40, fontSize: 24 }}>
-      <h1>Lynxio V0 Generator – Clean Setup OK</h1>
-      <p>Next.js fonctionne ✔️</p>
-    </div>
+    <main style={{ padding: 40 }}>
+      <h1>Lynxio V0 Generator</h1>
+      <p>Setup Next.js OK ✅</p>
+      <p>
+        Un site généré sera visible sur :{' '}
+        <code>/site/&lt;recordId Airtable&gt;</code>
+      </p>
+    </main>
   );
 }
