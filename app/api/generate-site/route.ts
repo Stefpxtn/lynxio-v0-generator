@@ -49,4 +49,3 @@ export async function POST(req: Request) {
     );
   }
 }
-Remove uuid, use crypto.randomUUID
