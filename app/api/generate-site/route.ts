@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ ID unique natif (pas besoin de package uuid)
+    // ✅ ID unique natif (pas besoin du package "uuid")
     const id = crypto.randomUUID();
 
     // ✅ URL de base (configurée dans Vercel → Environment Variables)
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // enlever un éventuel / à la fin
+    // Supprime un / final éventuel
     baseUrl = baseUrl.replace(/\/+$/, "");
 
     // ✅ URL finale propre
@@ -49,3 +49,4 @@ export async function POST(req: Request) {
     );
   }
 }
+Remove uuid, use crypto.randomUUID
