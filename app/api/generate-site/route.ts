@@ -1,65 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// Simple générateur d'ID sans uuid
-function generateId(): string {
-  const timePart = Date.now().toString(36);
-  const randomPart = Math.random().toString(36).slice(2, 10);
-  return `${timePart}-${randomPart}`;
-}
+// + import du v0-sdk etc.
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const html = body?.html;
+    const { name, sector, activity, address, phone, prompt } = body;
 
-    // Vérification obligatoire
-    if (!html || typeof html !== "string") {
+    if (!prompt || typeof prompt !== "string") {
       return NextResponse.json(
-        { error: "Missing HTML content in request." },
+        { error: "Missing or invalid prompt" },
         { status: 400 }
       );
     }
 
-    // ID unique
-    const id = generateId();
+    // ... appel à V0, génération du HTML, etc.
 
-    // Base URL (configurable via env)
-    const rawBaseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "https://lynxio-v0-generator.vercel.app";
-
-    // Nettoie l’URL (retire les / en trop)
-    const baseUrl = rawBaseUrl.trim().replace(/\/+$/, "");
-
-    // Encode correctement tout le HTML
-    const encodedHtml = encodeURIComponent(html);
-
-    // URL finale
-    const url = `${baseUrl}/site/${id}?html=${encodedHtml}`;
-
-    // Réponse à renvoyer à n8n
     return NextResponse.json(
       {
-        id,
         url,
+        id,
         html,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Erreur dans generate-site:", error);
+    console.error("Error in generate-site route:", error);
     return NextResponse.json(
-      { error: "Internal server error." },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
 }
 
-// Pour empêcher un accès GET direct
+// (optionnel)
 export async function GET() {
   return NextResponse.json(
-    {
-      error: "Method not allowed, use POST with JSON body { html: \"...\" }.",
-    },
+    { error: "Method not allowed, use POST with JSON body" },
     { status: 405 }
   );
 }
